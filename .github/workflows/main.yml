@@ -1,0 +1,52 @@
+name: Azure Web App CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy to Azure Web App
+
+    steps:
+      - name: 'Checkout GitHub Actions'
+        uses: actions/checkout@v3
+
+      - name: 'Set up Node.js'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # Adjust based on the Node.js version you're working with
+
+      - name: 'Install dependencies'
+        run: |
+          npm install
+        working-directory: . # Specify the correct path if the `package-lock.json` file is not in the root
+
+      - name: 'Build project'
+        run: |
+          npm run build
+        working-directory: . # Adjust if build directory is located elsewhere
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'HopHaven-Prod-WebApp-Linux-002-BrewerySite'  # Use your exact web app name
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          slot-name: 'staging'  # If you're using a specific slot, mention here (e.g., 'staging' or 'production')
+
+      - name: 'Upload Static Assets to Blob Storage'
+        run: |
+          # Command to upload static assets (HTML and images) to your Blob Storage
+          # Assuming you have Azure CLI configured or add additional steps if needed
+          az storage blob upload-batch --source ./assets --destination '$web' --account-name 'hophavenprodblob002bm'
+        env:
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}  # Ensure this key is added if access is restricted
+
+      - name: 'Post Deployment Checks'
+        run: |
+          echo "Deployment completed successfully!"
