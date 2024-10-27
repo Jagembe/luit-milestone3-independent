@@ -17,30 +17,17 @@ jobs:
       - name: 'Checkout GitHub Actions'
         uses: actions/checkout@v3
 
-      - name: 'Set up Node.js'
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'  # Adjust based on the Node.js version you're working with
-
-      - name: 'Install dependencies'
-        run: |
-          npm install
-        
-      - name: 'Build project'
-        run: |
-          npm run build
-        
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'HopHaven-Prod-WebApp-Linux-002-BrewerySite'  # Use your exact web app name
+          app-name: 'HopHaven-Prod-WebApp-Linux-002-BrewerySite'
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
-          slot-name: 'staging'  # If you're using a specific slot, mention here (e.g., 'staging' or 'production')
+          slot-name: 'staging'
 
       - name: 'Install Azure CLI'
         uses: azure/CLI@v1
         with:
-          azcliversion: '2.47.0'  # Adjust version as needed
+          azcliversion: '2.47.0'
 
       - name: 'Upload Static Assets to Blob Storage'
         run: |
@@ -48,7 +35,6 @@ jobs:
         env:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
 
-      
       - name: 'Post Deployment Checks'
         run: |
           echo "Deployment completed successfully!"
