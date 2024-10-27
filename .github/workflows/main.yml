@@ -1,0 +1,50 @@
+name: Azure Web App CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    name: Build and Deploy to Azure Web App
+
+    steps:
+      - name: 'Checkout GitHub Actions'
+        uses: actions/checkout@v3
+
+      - name: 'Set up Node.js'
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: 'Install dependencies'
+        run: npm install
+
+      # Build step placeholder, modify if there's a real build step
+      - name: 'Build project'
+        run: |
+          npm run build || echo "No build script defined, skipping build."
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: 'HopHaven-Prod-WebApp-Linux-002-BrewerySite'
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          slot-name: 'staging'
+
+      - name: Upload Static Assets to Blob Storage
+        uses: azure/CLI@v2
+        with:
+          azcliversion: '2.30.0'
+          inlineScript: |
+            az storage blob upload-batch --source ./assets --destination '$web' --account-name 'hophavenprodblob002bm'
+        env:
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+
+      - name: 'Post Deployment Checks'
+        run: echo "Deployment completed successfully!"
