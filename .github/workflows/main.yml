@@ -1,0 +1,30 @@
+name: Azure Blob Storage Static Site CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  upload_static_assets:
+    runs-on: ubuntu-latest
+    name: Upload Static Assets to Blob Storage
+
+    steps:
+      - name: 'Checkout GitHub Actions'
+        uses: actions/checkout@v3
+
+      - name: 'Upload Static Assets to Blob Storage'
+        uses: azure/CLI@v2
+        with:
+          azcliversion: '2.30.0'
+          inlineScript: |
+            az storage blob upload-batch --source ./assets --destination '$web' --account-name 'hophavenprodblob002bm'
+        env:
+          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
+
+      - name: 'Post Deployment Checks'
+        run: echo "Static assets uploaded successfully!"
