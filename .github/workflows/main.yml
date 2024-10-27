@@ -32,8 +32,10 @@ jobs:
         uses: azure/CLI@v1
         with:
           azcliversion: '2.47.0'
-          inlineScript: |
-            az storage blob upload-batch --source ./assets --destination '$web' --account-name 'hophavenprodblob002bm'
+
+      - name: 'Upload Static Assets to Blob Storage'
+        run: |
+          az storage blob upload-batch --source ./assets --destination '$web' --account-name 'hophavenprodblob002bm'
         env:
           AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
 
@@ -43,12 +45,6 @@ jobs:
           app-name: 'HopHaven-Prod-WebApp-Linux-002-BrewerySite'
           publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
           slot-name: 'staging'
-
-      - name: 'Upload Static Assets to Blob Storage'
-        run: |
-          az storage blob upload-batch --source ./assets --destination '$web' --account-name 'hophavenprodblob002bm'
-        env:
-          AZURE_STORAGE_KEY: ${{ secrets.AZURE_STORAGE_KEY }}
 
       - name: 'Post Deployment Checks'
         run: echo "Deployment completed successfully!"
